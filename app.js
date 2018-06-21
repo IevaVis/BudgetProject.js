@@ -14,6 +14,15 @@ let budgetController = (function () {
 		this.value = value;
 	};
 
+	let calculateTotal = function(type) {
+		let sum = 0;
+		data.allItems[type].forEach(function(current) {
+			sum += current.value;
+		});
+		data.totals[type] = sum;
+
+	};
+
 
 	let data = {
 		allItems: {
@@ -23,8 +32,10 @@ let budgetController = (function () {
 		totals: {
 			exp: 0,
 			inc: 0
-		}
-	}
+		},
+		budget: 0,
+		percentage: -1
+	};
 
 	return {
 		addItem: function(type, des, val) {
@@ -51,14 +62,36 @@ let budgetController = (function () {
 			return newItem;
 		},
 
+		calculateBudget: function() {
+
+			// 1. calculate total income and total expenses
+			calculateTotal('exp');
+			calculateTotal('inc');
+
+			// 2. calculate a budget: income - expenses
+			data.budget = data.totals.inc - data.totals.exp;
+
+			// 3. calculate the percentage of income that is already spent
+			if(data.totals.inc > 0) {
+				data.percentage = Math.round((data.totals.exp / data.totals.inc) * 100);
+			} else {
+				data.percentage = -1;
+			}
+		},
+
+		getBudget: function() {
+			return {
+				budget: data.budget,
+				totalInc: data.totals.inc,
+				totalExp: data.totals.exp,
+				percentage: data.percentage
+			};
+		},
+
 		testing: function() {
 			console.log(data)
 		}
 	};
-
-	
-
-
 
 })();
 
@@ -111,8 +144,6 @@ let UIController = (function() {
 
 			document.querySelector(element).insertAdjacentHTML('beforeend', newHtml);
 
-
-
 		},
 
 		clearFields: function() {
@@ -131,9 +162,6 @@ let UIController = (function() {
 	};
 
 })();
-
-
-
 
 
 // GLOBAL APP CONTROLLER
@@ -155,8 +183,10 @@ let controller = (function (budgetCtrl, UICtrl) {
 	let updateBudget = function() {
 
 		// 1. calculate the budget
+		budgetCtrl.calculateBudget();
 
 		// 2. return the budget
+		let budget = budgetCtrl.getBudget();
 
 		// 3. Display the budget on the UI
 
