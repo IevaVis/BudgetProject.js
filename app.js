@@ -183,6 +183,13 @@ let formatNumber = function(num, type) {
 
 };
 
+let nodeListForEach = function(list, callback) {
+	for (let i = 0; i < list.length; i++ ) {
+		callback(list[i], i);
+	}
+};
+
+
 	return {
 		getInput: function() {
 			return {
@@ -259,13 +266,6 @@ let formatNumber = function(num, type) {
 
 			let fields = document.querySelectorAll(DOMStrings.expensesPercLabel);
 
-			let nodeListForEach = function(list, callback) {
-				for (let i = 0; i < list.length; i++ ) {
-					callback(list[i], i);
-				}
-
-			};
-
 			nodeListForEach(fields, function(current, index) {
 				if(percentages[index] > 0) {
 					current.textContent = percentages[index] + '%';
@@ -290,6 +290,23 @@ let formatNumber = function(num, type) {
 
 		},
 
+		changedType: function() {
+
+			let fields = document.querySelectorAll(
+				DOMStrings.inputDescription + ',' + 
+				DOMStrings.inputType + ',' + 
+				DOMStrings.inputValue);
+
+		nodeListForEach(fields, function(cur) {
+			cur.classList.toggle('red-focus');
+
+		});
+
+		document.querySelector(DOMStrings.inputButton).classList.toggle('red');
+
+	},
+
+
 		getDOMStrings: function() {
 			return DOMStrings;
 		}
@@ -313,6 +330,8 @@ let controller = (function (budgetCtrl, UICtrl) {
 		});
 
 		document.querySelector(DOM.container).addEventListener('click', ctrlDeleteItem);
+
+		document.querySelector(DOM.inputType).addEventListener('change', UICtrl.changedType);
 
 	};
 
